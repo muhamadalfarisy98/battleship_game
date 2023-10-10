@@ -16,18 +16,23 @@ white = (0, 0, 0)
 bullets = []
 bullet_speed = 15
 bullet_radius = 5
+shoot_delay = 500
 
 # enemy ship
 num_enemy_ship = 150
-ship_speed = 0.7
+ship_speed = 0.5
 enemy_ship_size = 10
+enemey_radius_collision = 10
 
 # main ship
 mainship_radius = 10
+main_ship_radius_collision = 20
+inc_thrower = 4
 
 # screen size
 screen_width = 1000
 screen_height = 800
+initial_life = 5
 
 # center
 center_x, center_y = screen_width // 2, screen_height // 2
@@ -92,11 +97,11 @@ class MainShip:
         self.x = x
         self.y = y
         self.radius = mainship_radius
-        self.last_shot_time = 0
         self.color_thrower = red
-        self.shoot_delay = 500
+        self.shoot_delay = shoot_delay
+        self.radius_collision = main_ship_radius_collision
         self.angle = 0
-        self.radius_collision = 20
+        self.last_shot_time = 0
 
     def draw(self, screen):
         pygame.draw.circle(screen, (0, 0, 255), (self.x, self.y), self.radius)
@@ -111,10 +116,10 @@ class MainShip:
         return end_x, end_y
 
     def rotate_left(self):
-        self.angle += 4
+        self.angle += inc_thrower
 
     def rotate_right(self):
-        self.angle -= 4
+        self.angle -= inc_thrower
 
     def shoot(self):
         current_time = pygame.time.get_ticks()
@@ -148,21 +153,21 @@ class Bullet:
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
 
+# Enemy - defines enemy ship
 class Enemy:
     def __init__(self, position, angle):
-        self.screen = screen
         self.SHIP_COLOR = red
         self.SHIP_SPEED = ship_speed
         self.WIDTH, self.HEIGHT = screen_width, screen_height
-        self.RADII = [50, 100, 150, 200, 300]
-        self.radius_collision = 10
+        self.radius_collision = enemey_radius_collision
         self.position = [position[0], position[1]]
         self.angle = angle
+        self.RADII = [50, 100, 150, 200, 300]
 
     def draw_ship(self):
         ship_x, ship_y = self.position[0], self.position[1]
         pygame.draw.circle(
-            self.screen, self.SHIP_COLOR, (int(ship_x), int(ship_y)), enemy_ship_size
+            screen, self.SHIP_COLOR, (int(ship_x), int(ship_y)), enemy_ship_size
         )
 
     def update_ship_position(self):
@@ -197,8 +202,6 @@ class Radar:
         self.WIDTH, self.HEIGHT = screen_width, screen_height
         self.BACKGROUND_COLOR = blue_water
         self.RADAR_COLOR = blue
-        self.SHIP_COLOR = red
-        self.NUM_SHIPS = num_enemy_ship
         self.radars = radars
 
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -229,7 +232,7 @@ if __name__ == "__main__":
 
     running = True
     score = 0
-    live = 5
+    live = initial_life
 
     while running:
         for event in pygame.event.get():
